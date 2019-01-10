@@ -17,6 +17,8 @@ public class Paddle implements KeyListener{
 	private int up;
 	private int down;
 	
+	public static boolean triggerStart = false;
+	
 	private Display display;
 		
 	public Paddle(Display display) {
@@ -39,7 +41,6 @@ public class Paddle implements KeyListener{
 		}
 	}
 	
-	@Override
 	public void keyPressed(KeyEvent e) {
 		int key = e.getKeyCode();
 		if (key == KeyEvent.VK_LEFT) {
@@ -50,6 +51,10 @@ public class Paddle implements KeyListener{
 			velY = 5;
 			down = velY;
 		}
+		if (key == KeyEvent.VK_ENTER) {
+			System.out.println("fds");
+			triggerStart = true;
+		}
 	}
 	
 	private boolean topClamp(int y) {
@@ -59,15 +64,13 @@ public class Paddle implements KeyListener{
 		return y + this.height >= display.height ? false : true;
 	}
 	
-
-	@Override
 	public void keyReleased(KeyEvent e) {
 		up = 0;
 		down = 0;
 		velY = 0;
+		triggerStart = false;
 	}
 
-	@Override
 	public void keyTyped(KeyEvent e) {
 	}
 	

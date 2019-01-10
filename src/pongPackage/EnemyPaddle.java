@@ -42,7 +42,6 @@ public class EnemyPaddle{
 		distance = (y + height/2) - (game.getBall().y + game.getBall().height/2);
 		velY = distance/12 > 6 ? 6 : distance/12;
 		up = distance > 0;
-		System.out.println(distance/12);
 	}
 	
 	private boolean topClamp(int y) {

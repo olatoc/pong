@@ -30,7 +30,7 @@ public class Ball {
 		this.dir = dir == 1 ? 1 : -1;
 		
 		this.velX = 6*this.dir;
-		this.velY = 1;
+		this.velY = (r.nextInt(2) + 1)*this.dir;
 	}
 	
 	public void bounce() {
@@ -44,6 +44,8 @@ public class Ball {
 		bounce();
 		x += velX;
 		y += velY;
+		System.out.println(velY);
+
 	}
 	
 	public void changeDirection() {

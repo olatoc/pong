@@ -2,6 +2,7 @@ package pongPackage;
 
 import java.awt.Canvas;
 import java.awt.Color;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.image.BufferStrategy;
 import java.io.File;
@@ -13,10 +14,12 @@ import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.swing.JLabel;
 
 public class Game implements Runnable{
 
 	private Display display;
+	private JLabel startText;
 
 	private Paddle paddle;
 	private EnemyPaddle enemyPaddle;
@@ -31,6 +34,8 @@ public class Game implements Runnable{
 	public static long time;
 	
 	private int gameCount;
+	private int[] score;
+	private Font font; 
 		
 	public Game(int width, int height){
 		this.width = width;
@@ -41,9 +46,49 @@ public class Game implements Runnable{
 	private void initialize(){
 		display = new Display(width, height);
 		paddle = new Paddle(display);
+		score = new int[2];
+		startScreen();
+		
 		enemyPaddle = new EnemyPaddle(display);
 		ball = new Ball(display, 0);
 	}
+	
+	/* Start sequence */
+	private void startScreen() {
+		score[0] = 0;
+		score[1] = 0;
+		font = new Font("Helvetica", Font.PLAIN, 20);
+		while (true) {
+			tick();
+			if (bs == null){
+				display.getCanvas().createBufferStrategy(3);
+			}
+			bs = display.getCanvas().getBufferStrategy();
+			g = bs.getDrawGraphics();
+			
+			drawStartScreen();
+			bs.show();
+			
+			if (Paddle.triggerStart) {
+				break;
+			}
+		}
+		
+	}
+	
+	private void drawStartScreen() {
+		g = bs.getDrawGraphics();
+		
+		g.setColor(Color.decode("#008080"));
+		g.fillRect(0, 0, width, height);
+		
+		g.setColor(Color.BLACK);
+		g.setFont(font);
+		g.drawString("PRESS ENTER TO START", width/2 - 100, height/2);
+		
+		g.dispose();
+	}
+	/* End of start sequence */
 	
 	private void tick() {
 		try {
@@ -87,49 +132,59 @@ public class Game implements Runnable{
 		g.fillRect(0, 0, width, height);
 		
 		g.setColor(Color.BLACK);
+		g.fillOval(ball.x, ball.y, ball.width, ball.height);
+		
+		g.setColor(Color.WHITE);
 		g.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
 		
 		g.setColor(Color.BLACK);
 		g.fillRect(enemyPaddle.x, enemyPaddle.y, enemyPaddle.width, enemyPaddle.height);
 		
-		g.setColor(Color.BLACK);
-		g.fillOval(ball.x, ball.y, ball.width, ball.height);
+		g.setFont(font);
+		g.drawString(String.format("%d",score[0]), width/3, 40);
+		g.drawString(String.format("%d",score[1]), width/3*2, 40);
+
 		
 		g.dispose();
 	}
 	
+	//function to check if the ball has hit a paddle
 	private void checkHit() {
 		if (ball.x > 40 && ball.x + ball.width < width - 40) {
 			if (ball.y + ball.height/2 <= paddle.y + paddle.height && ball.y + ball.height/2 >= paddle.y) {
 				if (ball.x + ball.velX <= 40) {
 					bounceBall(paddle.velY);
-					try {
-						playSound("bounce.wav");
-					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-						e.printStackTrace();
-					}
 				}
 			}
 			if (ball.y + ball.height/2 <= enemyPaddle.y + enemyPaddle.height && ball.y + ball.height/2 >= enemyPaddle.y) {
 				if (ball.x + ball.velX + ball.width >= width - 40) {
 					bounceBall(-enemyPaddle.velY);
-					try {
-						playSound("bounce.wav");
-					} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
-						e.printStackTrace();
-					}
 				}
 			}
-		}else if(ball.x < 0 || ball.x + ball.width > width){
+		}else if (ball.x < 0){
+			score[1]++;
 			newBallSequence = 50;
+			System.out.printf("%d to %d\n",score[0], score[1]);
+		} else if (ball.x + ball.width > width){
+			score[0]++;
+			newBallSequence = 50;
+			System.out.printf("%d to %d\n",score[0], score[1]);
 		}
 	}
 	
+	//function to bounce ball according to the paddle's velocity
 	private void bounceBall(int paddleVel) {
+		int direction = ball.velY > 0 ? 1 : -1;
 		ball.velX *= -1;
 		ball.x = ball.x + ball.velX;
-		ball.velY = ball.velY + paddleVel/2 > 8 ? 8 : ball.velY + paddleVel/2;
-		System.out.printf("paddle : %d \t ball before: %d \t ball after: %d\n", paddleVel/4, ball.velY - paddleVel/4, ball.velY);
+		ball.velY = Math.abs(ball.velY + paddleVel) > 8 ? 8*direction : ball.velY + paddleVel;
+		System.out.printf("paddle : %d \t ball before: %d \t ball after: %d\n", paddleVel, ball.velY - paddleVel, ball.velY);
+		
+		try {
+			playSound("bounce.wav");
+		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void playSound(String soundFile) throws MalformedURLException, UnsupportedAudioFileException, IOException, LineUnavailableException {
@@ -139,6 +194,7 @@ public class Game implements Runnable{
 	    clip.open(AudioSystem.getAudioInputStream(f.toURI().toURL()));
 	    clip.start();
 	}
+	
 	
 	private void newBall() {
 		gameCount++;

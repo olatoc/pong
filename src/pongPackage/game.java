@@ -70,6 +70,11 @@ public class Game implements Runnable{
 			bs.show();
 			
 			if (Paddle.triggerStart) {
+				try {
+					playSound("music.wav", true);
+				} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+					e.printStackTrace();
+				}
 				break;
 			}
 		}
@@ -181,17 +186,20 @@ public class Game implements Runnable{
 		System.out.printf("paddle : %d \t ball before: %d \t ball after: %d\n", paddleVel, ball.velY - paddleVel, ball.velY);
 		
 		try {
-			playSound("bounce.wav");
+			playSound("bounce.wav", false);
 		} catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
 			e.printStackTrace();
 		}
 	}
 
-	public void playSound(String soundFile) throws MalformedURLException, UnsupportedAudioFileException, IOException, LineUnavailableException {
+	public void playSound(String soundFile, boolean loop) throws MalformedURLException, UnsupportedAudioFileException, IOException, LineUnavailableException {
 	    File f = new File("./" + soundFile);
 	    AudioInputStream audioIn = AudioSystem.getAudioInputStream(f.toURI().toURL());  
 	    Clip clip = AudioSystem.getClip();
 	    clip.open(AudioSystem.getAudioInputStream(f.toURI().toURL()));
+	    if (loop) {
+	    	clip.loop(Clip.LOOP_CONTINUOUSLY);
+	    }
 	    clip.start();
 	}
 	

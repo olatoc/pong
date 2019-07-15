@@ -97,7 +97,7 @@ public class Game implements Runnable{
 	
 	private void tick() {
 		try {
-			Thread.sleep(10);
+			Thread.sleep(33);
 			time++;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
@@ -169,11 +169,11 @@ public class Game implements Runnable{
 		}else if (ball.x < 0){
 			score[1]++;
 			newBallSequence = 50;
-			System.out.printf("%d to %d\n",score[0], score[1]);
+			//System.out.printf("%d to %d\n",score[0], score[1]);
 		} else if (ball.x + ball.width > width){
 			score[0]++;
 			newBallSequence = 50;
-			System.out.printf("%d to %d\n",score[0], score[1]);
+			//System.out.printf("%d to %d\n",score[0], score[1]);
 		}
 	}
 	
@@ -183,7 +183,7 @@ public class Game implements Runnable{
 		ball.velX *= -1;
 		ball.x = ball.x + ball.velX;
 		ball.velY = Math.abs(ball.velY + paddleVel) > 8 ? 8*direction : ball.velY + paddleVel;
-		System.out.printf("paddle : %d \t ball before: %d \t ball after: %d\n", paddleVel, ball.velY - paddleVel, ball.velY);
+		//System.out.printf("paddle : %d \t ball before: %d \t ball after: %d\n", paddleVel, ball.velY - paddleVel, ball.velY);
 		
 		try {
 			playSound("bounce.wav", false);

@@ -44,7 +44,7 @@ public class Ball {
 		bounce();
 		x += velX;
 		y += velY;
-		System.out.println(velY);
+		//System.out.println(velY);
 
 	}
 	
